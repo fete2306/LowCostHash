@@ -111,7 +111,7 @@ class Table{
         TableNode* TempNode=&Nodes[0];
         for(int i=0;i<indexs.data.size();i++){
             int index=indexs.data[i];
-            int* index_Node=nullptr;
+            unsigned int* index_Node=nullptr;
             switch(index){
                 case 0:
                     index_Node=&TempNode->p0;
@@ -129,7 +129,7 @@ class Table{
                     std::cout<<"[get]索引越界"<<" indexs["<<i<<"]="<<index<<std::endl;
                     break;
             }
-            if(*index_Node==-1){
+            if(*index_Node==UINT_MAX){
                 *index_Node=Nodes.size();
                 Nodes.push_back(TableNode());
             }
