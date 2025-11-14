@@ -74,6 +74,7 @@ class Table{
             Temp.value=static_cast<goal>(this->Nodes[i].value);
             newTable->Nodes.push_back(Temp);
         }
+newTable->Values=table->Values;
         delete this;
         return newTable;
     }
