@@ -113,7 +113,7 @@ class Table{
         Values.push_back(value);
     }
     template<typename v>
-    v* get_value(Indexs indexs){
+    v* get(Indexs indexs){
         TableNode<T>* TempNode=&Nodes[0];
         for(int i=0;i<indexs.data.size();i++){
             int index=indexs.data[i];
@@ -209,38 +209,30 @@ class LowCostHash{
     }   
     }
     template<typename v>
-    v* save(Indexs indexs){
+    v* get(Indexs indexs){
     switch (this->typeId)
     {
     case 8:{
         Table<uint8_t>* table=static_cast<Table<uint8_t>*>(this->data);
-        table->save(indexs,value);
+        return table->get<v>(indexs);
         break;
     }
     case 16:{
         Table<uint16_t>* table=static_cast<Table<uint16_t>*>(this->data);
-        if(table->Nodes.size()-1+indexs.data.size()>=table->NodesMAX){
-            this->data=table->up<uint32_t>();
-            this->typeId=32;
-            this->save(indexs,value);
-        }
-        table->save(indexs,value);
+
+        return table->get<v>(indexs);
         break;
     }
         
     case 32:{
         Table<uint32_t>* table=static_cast<Table<uint32_t>*>(this->data);
-        if(table->Nodes.size()-1+indexs.data.size()>=table->NodesMAX){
-            this->data=table->up<uint64_t>();
-            this->typeId=64;
-            this->save(indexs,value);
-        }
-        table->save(indexs,value);
+        
+        return table->get<v>(indexs);
         break;
     }
     case 64:{
         Table<uint64_t>* table=static_cast<Table<uint64_t>*>(this->data);
-        table->save(indexs,value);
+        return table->get<v>(indexs);
         break;    
         }
     
@@ -253,14 +245,13 @@ class LowCostHash{
 
 
 int main(){
-    Table table=Table();
+    LowCostHash table=LowCostHash();
     Indexs indexs=Indexs(1101);
     indexs.print();
     std::string value="hello";
     table.save(indexs,&value);
     std::cout<<"the value is "<<*(table.get_value<std::string>(indexs))<<std::endl;
     table.shrink_to_fit();
-    table.print();
     return 0;
 
 }
