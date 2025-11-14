@@ -5,12 +5,6 @@
 #include<cstdint>
 #include<limits>
 
-#define UINT_MAX std::numeric_limits<unsigned int>::max()
-#define UINT8_MAX std::numeric_limits<uint8_t>::max()
-#define UINT16_MAX std::numeric_limits<uint16_t>::max()
-#define UINT32_MAX std::numeric_limits<uint32_t>::max()
-#define UINT64_MAX std::numeric_limits<uint64_t>::max()
-
 class Indexs{
 public:
 std::vector<int>data;
@@ -30,7 +24,7 @@ void get_indexs(size_t key){
 
 template<typename T>
 Indexs(const T& value){
-        get_indexs(hash(value));
+        this->get_indexs(hash(value));
         this->key=hash(value);
     }
 void print(){
@@ -63,7 +57,7 @@ class Table{
     }
     template<typename goal>
     Table<goal>* up(){
-        Table* newTable=new Table<goal>();
+        Table<goal>* newTable=new Table<goal>();
         newTable->Nodes.reserve(this->Nodes.size());
         for(int i=0;i<this->Nodes.size();i++){
             TableNode<goal>Temp=TableNode<goal>();
@@ -74,10 +68,11 @@ class Table{
             Temp.value=static_cast<goal>(this->Nodes[i].value);
             newTable->Nodes.push_back(Temp);
         }
-newTable->Values=table->Values;
+        newTable->Values=this->Values;
         delete this;
         return newTable;
     }
+    
     void shrink_to_fit(){
         Nodes.shrink_to_fit();
         Values.shrink_to_fit();
@@ -106,7 +101,7 @@ newTable->Values=table->Values;
             }
             if(*index_Node==this->NodesMAX){
                 *index_Node=Nodes.size();
-                Nodes.push_back(TableNode());
+                Nodes.push_back(TableNode<T>());
             }
             TempNode=&Nodes[*index_Node];
         }
@@ -136,10 +131,6 @@ newTable->Values=table->Values;
                     std::cout<<"[get]索引越界"<<" indexs["<<i<<"]="<<index<<std::endl;
                     break;
             }
-            if(*index_Node==this->NodesMAX){
-                *index_Node=Nodes.size();
-                Nodes.push_back(TableNode());
-            }
             TempNode=&Nodes[*index_Node];
         }
         return static_cast<v*>(Values[TempNode->value]);
@@ -164,6 +155,33 @@ class LowCostHash{
     LowCostHash(){
         data=new Table<uint8_t>();
     }
+    void shrink_to_fit(){
+        switch (this->typeId)
+        {
+        case 8:{
+            Table<uint8_t>* table=static_cast<Table<uint8_t>*>(this->data);
+            table->shrink_to_fit();
+            break;
+        }
+        case 16:{
+            Table<uint16_t>* table=static_cast<Table<uint16_t>*>(this->data);
+            table->shrink_to_fit();
+            break;
+        }
+        case 32:{
+            Table<uint32_t>* table=static_cast<Table<uint32_t>*>(this->data);
+            table->shrink_to_fit();
+            break;
+        }
+        case 64:{
+            Table<uint64_t>* table=static_cast<Table<uint64_t>*>(this->data);
+            table->shrink_to_fit();
+            break;    
+            }
+        default:
+        break;
+        }
+        }
 
     void save(Indexs indexs,void* value){
     switch (this->typeId)
@@ -209,6 +227,7 @@ class LowCostHash{
         break;
     }   
     }
+
     template<typename v>
     v* get(Indexs indexs){
     switch (this->typeId)
@@ -220,14 +239,12 @@ class LowCostHash{
     }
     case 16:{
         Table<uint16_t>* table=static_cast<Table<uint16_t>*>(this->data);
-
         return table->get<v>(indexs);
         break;
     }
         
     case 32:{
         Table<uint32_t>* table=static_cast<Table<uint32_t>*>(this->data);
-        
         return table->get<v>(indexs);
         break;
     }
@@ -238,11 +255,13 @@ class LowCostHash{
         }
     
     default:
+        std::cout<<"get failed"<<std::endl;
+        return nullptr;
         break;
     }   
     }
 
-}
+};
 
 
 int main(){
@@ -251,7 +270,7 @@ int main(){
     indexs.print();
     std::string value="hello";
     table.save(indexs,&value);
-    std::cout<<"the value is "<<*(table.get_value<std::string>(indexs))<<std::endl;
+    std::cout<<"the value is "<<*(table.get<std::string>(indexs))<<std::endl;
     table.shrink_to_fit();
     return 0;
 
