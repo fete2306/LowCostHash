@@ -6,7 +6,7 @@
 
 单个节点大小约为5B(4节点索引+1值索引).
 
-支持任意类型的键值对，可自动处理不同键引起的哈希冲突
+支持任意类型的键值对，可自动处理键类型不同引起的哈希冲突
 
 ## 文件说明
 
@@ -264,3 +264,4 @@ MIT License
 Copyright (c) 2025 fete2306
 
 Permission is hereby granted, free of charge, to any person obtaining a copy...
+
